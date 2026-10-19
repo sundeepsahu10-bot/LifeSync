@@ -18,6 +18,16 @@ import {
   type PageId,
 } from './types'
 
+type DashboardFilter = 'all' | ItemCategory
+
+const DASHBOARD_FILTERS: { label: string; value: DashboardFilter }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Bills', value: 'bill' },
+  { label: 'Subscriptions', value: 'subscription' },
+  { label: 'Documents', value: 'document' },
+  { label: 'Events', value: 'event' },
+]
+
 function App() {
   const { theme, setTheme } = useTheme()
   const [currentPage, setCurrentPage] = useState<PageId>('dashboard')
@@ -33,30 +43,52 @@ function App() {
   )
 
   const [query, setQuery] = useState('')
+  const [dashboardFilter, setDashboardFilter] =
+    useState<DashboardFilter>('all')
   const nextId = useRef(0)
 
   const normalizedQuery = query.trim().toLowerCase()
-  const isFiltered = normalizedQuery.length > 0
+  const isSearchActive = normalizedQuery.length > 0
+  const isFiltered = isSearchActive || dashboardFilter !== 'all'
 
-  // Search filters displayed items without changing the saved data.
+  // Search filters displayed items without changing saved data.
   const matchesQuery = (item: LifeItem) =>
-    !isFiltered ||
+    !isSearchActive ||
     [item.title, item.detail ?? '', CATEGORY_LABELS[item.category]].some(
       (text) => text.toLowerCase().includes(normalizedQuery),
     )
 
+  // Category chips apply only to the dashboard.
+  const matchesDashboardFilter = (item: LifeItem) =>
+    dashboardFilter === 'all' || item.category === dashboardFilter
+
+  const matchesDashboardView = (item: LifeItem) =>
+    matchesQuery(item) && matchesDashboardFilter(item)
+
   const todayItems = items.filter((item) => item.dueDate === today)
   const remainingToday = todayItems.filter((item) => !item.done).length
 
+  
   const upcomingItems = items
-    .filter((item) => item.dueDate > today)
+    .filter((item) => item.dueDate !== today)
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
 
+
   function handleToggle(id: string) {
+    const completedDate = toISODate(new Date())
+
     setItems((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, done: !item.done } : item,
-      ),
+      current.map((item) => {
+        if (item.id !== id) return item
+
+        const done = !item.done
+
+        return {
+          ...item,
+          done,
+          completedAt: done ? completedDate : undefined,
+        }
+      }),
     )
   }
 
@@ -104,19 +136,39 @@ function App() {
               <>
                 <SummaryCards items={items} today={today} />
 
+                <div
+                  className="dashboard-filters"
+                  role="group"
+                  aria-label="Filter dashboard by category"
+                >
+                  {DASHBOARD_FILTERS.map((filter) => (
+                    <button
+                      key={filter.value}
+                      type="button"
+                      className="filter-chip"
+                      aria-pressed={dashboardFilter === filter.value}
+                      onClick={() => setDashboardFilter(filter.value)}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="dashboard-grid">
                   <div className="dashboard-col">
                     <PrioritiesSection
-                      items={todayItems.filter(matchesQuery)}
+                      items={todayItems.filter(matchesDashboardView)}
+                      today={today}
                       remaining={remainingToday}
                       isFiltered={isFiltered}
                       onToggle={handleToggle}
                     />
 
                     <UpcomingSection
-                      items={upcomingItems.filter(matchesQuery)}
+                      items={upcomingItems.filter(matchesDashboardView)}
                       today={today}
                       isFiltered={isFiltered}
+                      onToggle={handleToggle}
                     />
                   </div>
 
@@ -124,18 +176,15 @@ function App() {
                 </div>
               </>
             ) : (
-              
-            <SectionPage
-              page={currentPage}
-              items={items.filter(matchesQuery)}
-              today={today}
-              isFiltered={isFiltered}
-              onToggle={handleToggle}
-              onAdd={handleAdd}
-            />
-
+              <SectionPage
+                page={currentPage}
+                items={items.filter(matchesQuery)}
+                today={today}
+                isFiltered={isSearchActive}
+                onToggle={handleToggle}
+                onAdd={handleAdd}
+              />
             )}
-          
           </main>
 
           <footer className="site-footer">
@@ -146,6 +195,5 @@ function App() {
     </div>
   )
 }
-
 
 export default App

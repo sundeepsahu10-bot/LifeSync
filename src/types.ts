@@ -9,10 +9,10 @@ export interface LifeItem {
   id: string
   title: string
   category: ItemCategory
-  /** Local calendar date, YYYY-MM-DD. */
   dueDate: string
   done: boolean
   detail?: string
+  completedAt?: string
 }
 
 export const CATEGORY_LABELS: Record<ItemCategory, string> = {

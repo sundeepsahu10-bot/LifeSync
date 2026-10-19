@@ -1,3 +1,4 @@
+
 import { formatDueLabel } from '../lib/dates'
 import {
   CATEGORY_LABELS,
@@ -8,6 +9,7 @@ import {
 
 function CategoryBadge({ category }: { category: ItemCategory }) {
   const tone = CATEGORY_TONES[category]
+
   return (
     <span className={tone === 'neutral' ? 'badge' : `badge badge-${tone}`}>
       {CATEGORY_LABELS[category]}
@@ -15,8 +17,29 @@ function CategoryBadge({ category }: { category: ItemCategory }) {
   )
 }
 
+function UrgencyBadge({
+  item,
+  today,
+}: {
+  item: LifeItem
+  today: string
+}) {
+  if (item.done) return null
+
+  if (item.dueDate < today) {
+    return <span className="urgency-badge urgency-overdue">Overdue</span>
+  }
+
+  if (item.dueDate === today) {
+    return <span className="urgency-badge urgency-today">Due today</span>
+  }
+
+  return <span className="urgency-badge urgency-upcoming">Upcoming</span>
+}
+
 interface PrioritiesSectionProps {
   items: LifeItem[]
+  today: string
   remaining: number
   isFiltered: boolean
   onToggle: (id: string) => void
@@ -24,6 +47,7 @@ interface PrioritiesSectionProps {
 
 export function PrioritiesSection({
   items,
+  today,
   remaining,
   isFiltered,
   onToggle,
@@ -45,6 +69,7 @@ export function PrioritiesSection({
         <ul className="item-list">
           {items.map((item) => {
             const inputId = `priority-${item.id}`
+
             return (
               <li className="item" key={item.id} data-done={item.done}>
                 <input
@@ -54,15 +79,21 @@ export function PrioritiesSection({
                   checked={item.done}
                   onChange={() => onToggle(item.id)}
                 />
+
                 <div className="item-body">
                   <label htmlFor={inputId} className="item-title">
                     {item.title}
                   </label>
+
                   {item.detail && (
                     <span className="item-meta">{item.detail}</span>
                   )}
                 </div>
-                <CategoryBadge category={item.category} />
+
+                <div className="item-badges">
+                  <UrgencyBadge item={item} today={today} />
+                  <CategoryBadge category={item.category} />
+                </div>
               </li>
             )
           })}
@@ -72,21 +103,24 @@ export function PrioritiesSection({
   )
 }
 
+
+
 interface UpcomingSectionProps {
   items: LifeItem[]
   today: string
   isFiltered: boolean
+  onToggle: (id: string) => void
 }
-
 export function UpcomingSection({
   items,
   today,
   isFiltered,
+  onToggle,
 }: UpcomingSectionProps) {
   return (
     <section className="card panel" aria-labelledby="upcoming-title">
       <div className="panel-head">
-        <h2 id="upcoming-title">Upcoming</h2>
+        <h2 id="upcoming-title">Overdue &amp; upcoming</h2>
       </div>
 
       {items.length === 0 ? (
@@ -96,11 +130,26 @@ export function UpcomingSection({
             : 'Nothing coming up yet.'}
         </p>
       ) : (
-        <ul className="item-list">
-          {items.map((item) => (
-            <li className="item" key={item.id}>
+        
+      <ul className="item-list">
+        {items.map((item) => {
+          const inputId = `upcoming-${item.id}`
+
+          return (
+            <li className="item" key={item.id} data-done={item.done}>
+              <input
+                id={inputId}
+                className="item-check"
+                type="checkbox"
+                checked={item.done}
+                onChange={() => onToggle(item.id)}
+              />
+
               <div className="item-body">
-                <span className="item-title">{item.title}</span>
+                <label htmlFor={inputId} className="item-title">
+                  {item.title}
+                </label>
+
                 <span className="item-meta">
                   <time dateTime={item.dueDate}>
                     {formatDueLabel(item.dueDate, today)}
@@ -108,10 +157,16 @@ export function UpcomingSection({
                   {item.detail ? ` · ${item.detail}` : ''}
                 </span>
               </div>
-              <CategoryBadge category={item.category} />
+
+              <div className="item-badges">
+                <UrgencyBadge item={item} today={today} />
+                <CategoryBadge category={item.category} />
+              </div>
             </li>
-          ))}
-        </ul>
+          )
+        })}
+      </ul>
+
       )}
     </section>
   )

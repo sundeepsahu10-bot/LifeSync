@@ -1,5 +1,5 @@
 /* =============================================================
-   LifeOS design system: Phase 2.1
+   LifeSync design system: Phase 2.1
    Tokens first, then base styles, then a few tiny utilities.
 
    Themes: colours use light-dark(). The theme follows the system
@@ -9,6 +9,23 @@
 
 :root {
   color-scheme: light dark;
+  
+  /* ---------- LifeOS colorful dashboard palette ---------- */
+  --color-accent-emerald: light-dark(#059669, #00e6a0);
+  --color-accent-blue: light-dark(#2563eb, #4da3ff);
+  --color-accent-violet: light-dark(#7c3aed, #ad83ff);
+  --color-accent-amber: light-dark(#b45309, #ffca57);
+  --color-accent-pink: light-dark(#db2777, #ff5c8a);
+  --color-accent-cyan: light-dark(#0891b2, #46d9ef);
+
+  --color-card-emerald: light-dark(#ecfdf5, #102b26);
+  --color-card-blue: light-dark(#eff6ff, #15233c);
+  --color-card-violet: light-dark(#f5f3ff, #241b3b);
+  --color-card-amber: light-dark(#fffbeb, #332715);
+
+  --shadow-glow-emerald: 0 0 28px rgb(0 230 160 / 0.12);
+  --radius-dashboard: 1.125rem;
+
 
   /* ---------- Colour: surfaces, text, borders ---------- */
   --color-bg: light-dark(#f7f8fa, #0f1117);
@@ -19,19 +36,21 @@
   --color-border: light-dark(#e2e5ec, #2a2e3b);
   --color-border-strong: light-dark(#c9cedb, #3b4152);
 
-  /* ---------- Colour: primary (indigo) ---------- */
-  --color-primary: light-dark(#4f46e5, #818cf8);
-  --color-primary-hover: light-dark(#4338ca, #a5b4fc);
-  --color-primary-fg: light-dark(#ffffff, #0f1117); /* text on solid primary */
-  --color-primary-soft: light-dark(#eceeff, #23264d);
-  --color-primary-soft-fg: light-dark(#3730a3, #c7d2fe);
 
-  /* ---------- Colour: secondary (teal) ---------- */
-  --color-secondary: light-dark(#0f766e, #2dd4bf);
-  --color-secondary-hover: light-dark(#115e59, #5eead4);
-  --color-secondary-fg: light-dark(#ffffff, #0f1117);
-  --color-secondary-soft: light-dark(#e3f4f2, #123230);
-  --color-secondary-soft-fg: light-dark(#0f5a54, #99f6e4);
+  /* ---------- Colour: primary (emerald) ---------- */
+  --color-primary: light-dark(#059669, #00e6a0);
+  --color-primary-hover: light-dark(#047857, #33efb5);
+  --color-primary-fg: light-dark(#ffffff, #071b16);
+  --color-primary-soft: light-dark(#d1fae5, #12392e);
+  --color-primary-soft-fg: light-dark(#065f46, #8fffd5);
+
+
+  /* ---------- Colour: secondary (electric blue) ---------- */
+  --color-secondary: light-dark(#2563eb, #4da3ff);
+  --color-secondary-hover: light-dark(#1d4ed8, #80bcff);
+  --color-secondary-fg: light-dark(#ffffff, #071426);
+  --color-secondary-soft: light-dark(#dbeafe, #172d49);
+  --color-secondary-soft-fg: light-dark(#1d4ed8, #a8d2ff);
 
   /* ---------- Colour: status ---------- */
   --color-success: light-dark(#15803d, #4ade80);
